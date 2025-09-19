@@ -3,56 +3,37 @@ import Dashboard from '../components/Dashboard'
 import VideoCall from '../components/VideoCall'
 import ProfileSection from '../components/ProfileSection'
 import PatientTracker from '../components/PatientTracker'
+import DoctorAppointmentManager from '../components/DoctorAppointmentManager'
 import api from '../services/api'
 
 export default function DoctorDashboard() {
   const user = JSON.parse(localStorage.getItem('user') || 'null')
-  const [appointments, setAppointments] = useState([])
   const [selected, setSelected] = useState(null)
-
-  const load = async () => {
-    const { data } = await api.get(`/appointments/doctor/${user.id}`)
-    setAppointments(data)
-  }
-
-  useEffect(() => { load() }, [])
-
   const [activeTab, setActiveTab] = useState('appointments')
+  
+  const handleJoinRoom = (appointmentId) => {
+    setSelected(appointmentId)
+    setActiveTab('consultation')
+  }
 
   const renderTabContent = () => {
     switch(activeTab) {
       case 'appointments':
+        return <DoctorAppointmentManager onJoinRoom={handleJoinRoom} />;
+      case 'consultation':
         return (
-          <>
-            <div className="card">
-              <div className="card-body">
-                <div className="section-title mb-2">Your Appointments</div>
-                {appointments.length > 0 ? (
-                  <ul className="space-y-2">
-                    {appointments.map(a => (
-                      <li key={a._id} className="border p-2 rounded flex justify-between items-center">
-                        <div>
-                          <div className="font-semibold">{new Date(a.appointmentDate).toLocaleString()}</div>
-                          <div className="text-sm text-gray-600">Patient: {a.patientId?.name || ''}</div>
-                          <div className="text-sm text-gray-500">Status: {a.status}</div>
-                        </div>
-                        <button className="btn-primary" onClick={() => setSelected(a)}>Join</button>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-gray-500">No appointments scheduled</p>
-                )}
-              </div>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <div className="section-title">Video Consultation</div>
+              <button 
+                onClick={() => setActiveTab('appointments')} 
+                className="btn-secondary"
+              >
+                Back to Appointments
+              </button>
             </div>
-
-            {selected && (
-              <div className="space-y-2 mt-4">
-                <div className="section-title">Video Consultation</div>
-                <VideoCall roomId={`${selected._id}`} />
-              </div>
-            )}
-          </>
+            <VideoCall roomId={`${selected}`} />
+          </div>
         );
       case 'profile':
         return <ProfileSection />;

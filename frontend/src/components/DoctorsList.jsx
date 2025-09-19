@@ -11,17 +11,29 @@ export default function DoctorsList({ onSelectDoctor }) {
     const fetchDoctors = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/users/doctors/specialization');
-        setDoctorsBySpecialty(response.data);
+        setError(null);
+        
+        // Add timestamp to prevent caching and ensure fresh data
+        const timestamp = new Date().getTime();
+        const response = await api.get(`/users/doctors/specialization?t=${timestamp}`);
+        console.log('Fetched doctors from database (Dashboard):', response.data);
+        
+        setDoctorsBySpecialty(response.data || {});
         
         // Set the first specialty as selected by default if available
-        const specialties = Object.keys(response.data);
+        const specialties = Object.keys(response.data || {});
         if (specialties.length > 0) {
           setSelectedSpecialty(specialties[0]);
         }
       } catch (err) {
-        setError('Failed to load doctors. Please try again later.');
         console.error('Error fetching doctors:', err);
+        if (err.response?.status === 401) {
+          setError('Please log in to view doctors.');
+        } else if (err.response?.status === 403) {
+          setError('You do not have permission to view doctors.');
+        } else {
+          setError(`Failed to load doctors: ${err.response?.data?.message || err.message}`);
+        }
       } finally {
         setLoading(false);
       }

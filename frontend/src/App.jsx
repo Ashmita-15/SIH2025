@@ -6,6 +6,8 @@ import LoginSignup from './pages/LoginSignup.jsx'
 import PatientDashboard from './pages/PatientDashboard.jsx'
 import DoctorDashboard from './pages/DoctorDashboard.jsx'
 import PharmacyDashboard from './pages/PharmacyDashboard.jsx'
+import DoctorsPage from './pages/DoctorsPage.jsx'
+import DoctorDetails from './pages/DoctorDetails.jsx'
 
 function NotFound() {
   return (
@@ -30,13 +32,15 @@ export default function App() {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <div className="container-app p-4">
+      <div>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginSignup />} />
           <Route path="/patient" element={<PrivateRoute roles={["patient"]}><PatientDashboard /></PrivateRoute>} />
           <Route path="/doctor" element={<PrivateRoute roles={["doctor"]}><DoctorDashboard /></PrivateRoute>} />
           <Route path="/pharmacy" element={<PrivateRoute roles={["pharmacy"]}><PharmacyDashboard /></PrivateRoute>} />
+          <Route path="/doctors" element={<PrivateRoute roles={["patient"]}><DoctorsPage /></PrivateRoute>} />
+          <Route path="/doctors/:doctorId" element={<PrivateRoute roles={["patient"]}><DoctorDetails /></PrivateRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

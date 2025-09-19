@@ -4,6 +4,15 @@ import { getUserProfile, updateUserProfile, updatePassword, getDoctors, getDocto
 
 const router = Router();
 
+// Get doctors grouped by specialization (must come before /:id routes)
+router.get('/doctors/specialization', authRequired, getDoctorsBySpecialization);
+
+// Get all doctors (must come before /:id routes)
+router.get('/doctors', authRequired, getDoctors);
+
+// Get individual doctor by ID
+router.get('/doctor/:id', authRequired, getUserProfile);
+
 // Get user profile
 router.get('/:id', authRequired, getUserProfile);
 
@@ -12,11 +21,5 @@ router.put('/:id', authRequired, updateUserProfile);
 
 // Update password
 router.put('/:id/password', authRequired, updatePassword);
-
-// Get doctors grouped by specialization
-router.get('/doctors/specialization', authRequired, getDoctorsBySpecialization);
-
-// Get all doctors
-router.get('/doctors', authRequired, getDoctors);
 
 export default router;
