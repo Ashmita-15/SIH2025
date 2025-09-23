@@ -5,6 +5,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
+import { attachSocketIO } from './middleware/socketMiddleware.js';
 import authRoutes from './routes/authRoutes.js';
 import appointmentRoutes from './routes/appointmentRoutes.js';
 import healthRecordRoutes from './routes/healthRecordRoutes.js';
@@ -30,6 +31,7 @@ await connectDB();
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
+app.use(attachSocketIO(io)); // Attach socket.io to requests
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -42,8 +44,23 @@ app.use('/api/users', userRoutes);
 // Simple health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-// WebRTC signaling (very basic for MVP)
+// Enhanced Socket.IO implementation
 io.on('connection', (socket) => {
+    console.log('User connected:', socket.id);
+    
+    // Join user to their specific room for notifications
+    socket.on('join-user-room', (userId) => {
+        socket.join(`user_${userId}`);
+        console.log(`User ${userId} joined their room`);
+    });
+    
+    // Join pharmacy to their specific room for orders
+    socket.on('join-pharmacy-room', (pharmacyId) => {
+        socket.join(`pharmacy_${pharmacyId}`);
+        console.log(`Pharmacy ${pharmacyId} joined their room`);
+    });
+    
+    // WebRTC signaling (existing functionality)
     socket.on('join-room', (roomId) => {
         socket.join(roomId);
         socket.to(roomId).emit('user-joined', socket.id);
@@ -52,9 +69,20 @@ io.on('connection', (socket) => {
     socket.on('signal', ({ roomId, data }) => {
         socket.to(roomId).emit('signal', { from: socket.id, data });
     });
+    
+    // Real-time stock updates
+    socket.on('subscribe-pharmacy-updates', (pharmacyId) => {
+        socket.join(`pharmacy-updates-${pharmacyId}`);
+        console.log(`Client subscribed to pharmacy ${pharmacyId} updates`);
+    });
+    
+    socket.on('unsubscribe-pharmacy-updates', (pharmacyId) => {
+        socket.leave(`pharmacy-updates-${pharmacyId}`);
+        console.log(`Client unsubscribed from pharmacy ${pharmacyId} updates`);
+    });
 
     socket.on('disconnect', () => {
-        // No-op for MVP
+        console.log('User disconnected:', socket.id);
     });
 });
 

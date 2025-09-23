@@ -31,7 +31,10 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-6">
           <Link to="/" className="text-slate-700 hover:text-blue-600 font-medium">{t('navbar.home')}</Link>
           {user && user.role === 'patient' ? (
-            <Link to="/doctors" className="text-slate-700 hover:text-blue-600 font-medium">{t('navbar.doctors')}</Link>
+            <>
+              <Link to="/doctors" className="text-slate-700 hover:text-blue-600 font-medium">{t('navbar.doctors')}</Link>
+              <Link to="/pharmacies" className="text-slate-700 hover:text-blue-600 font-medium">Pharmacy</Link>
+            </>
           ) : (
             <a href="#features" className="text-slate-700 hover:text-blue-600 font-medium">{t('navbar.features')}</a>
           )}
@@ -158,7 +161,10 @@ export default function Navbar() {
           <div className="container-app space-y-3">
             <Link to="/" className="block text-slate-700 hover:text-blue-600 font-medium py-2" onClick={() => setMobileMenuOpen(false)}>{t('navbar.home')}</Link>
             {user && user.role === 'patient' ? (
-              <Link to="/doctors" className="block text-slate-700 hover:text-blue-600 font-medium py-2" onClick={() => setMobileMenuOpen(false)}>{t('navbar.doctors')}</Link>
+              <>
+                <Link to="/doctors" className="block text-slate-700 hover:text-blue-600 font-medium py-2" onClick={() => setMobileMenuOpen(false)}>{t('navbar.doctors')}</Link>
+                <Link to="/pharmacies" className="block text-slate-700 hover:text-blue-600 font-medium py-2" onClick={() => setMobileMenuOpen(false)}>Pharmacy</Link>
+              </>
             ) : (
               <a href="#features" className="block text-slate-700 hover:text-blue-600 font-medium py-2" onClick={() => setMobileMenuOpen(false)}>{t('navbar.features')}</a>
             )}
