@@ -151,7 +151,7 @@ export default function AppointmentBooking({ onJoinRoom, selectedDoctor: doctorF
         </div>
       )}
 
-      <div className="card">
+      {/* <div className="card">
         <div className="card-body">
           <div className="section-title mb-4">Book an Appointment</div>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -216,7 +216,7 @@ export default function AppointmentBooking({ onJoinRoom, selectedDoctor: doctorF
             </button>
           </form>
         </div>
-      </div>
+      </div> */}
 
       <div className="card">
         <div className="card-body">

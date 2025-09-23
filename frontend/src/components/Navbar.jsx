@@ -42,6 +42,68 @@ export default function Navbar() {
           <a href="#" className="text-slate-700 hover:text-blue-600 font-medium">{t('navbar.contact')}</a>
           
           {/* Language Selector */}
+          {/* <div className="relative group">
+            <button
+              id="language-selector"
+              className="flex items-center gap-2 text-slate-700 hover:text-blue-600 font-medium"
+            >
+              <span>{i18n.language.toUpperCase()}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block" id="language-dropdown">
+              <a
+                href="#" 
+                onClick={(e) => { e.preventDefault(); changeLanguage('en'); }}
+                className={`block px-4 py-2 text-sm ${i18n.language === 'en' ? 'bg-blue-50 text-blue-600' : 'text-slate-700 hover:bg-gray-100'}`}
+              >
+                {t('languages.english')}
+              </a>
+              <a
+                href="#" 
+                onClick={(e) => { e.preventDefault(); changeLanguage('hi'); }}
+                className={`block px-4 py-2 text-sm ${i18n.language === 'hi' ? 'bg-blue-50 text-blue-600' : 'text-slate-700 hover:bg-gray-100'}`}
+              >
+                {t('languages.hindi')}
+              </a>
+              <a
+                href="#" 
+                onClick={(e) => { e.preventDefault(); changeLanguage('pa'); }}
+                className={`block px-4 py-2 text-sm ${i18n.language === 'pa' ? 'bg-blue-50 text-blue-600' : 'text-slate-700 hover:bg-gray-100'}`}
+              >
+                {t('languages.punjabi')}
+              </a>
+            </div>
+          </div> */}
+          
+          {!user && (
+            <Link to="/login" className="btn-primary ml-2">
+              {t('navbar.loginSignup')}
+            </Link>
+          )}
+          
+          {user && (
+            <div className="flex items-center gap-4">
+              <div className="text-slate-700">
+                <span className="font-medium">{user.name}</span>
+                <span className="text-xs text-slate-500 ml-2 capitalize">({user.role})</span>
+              </div>
+              <Link 
+                to={`/${user.role}`} 
+                className="btn-primary"
+              >
+                {t('navbar.dashboard')}
+              </Link>
+              <button 
+                onClick={logout} 
+                className="btn-secondary"
+              >
+                {t('navbar.logout')}
+              </button>
+            </div>
+            
+          )}
           <div className="relative group">
             <button
               id="language-selector"
@@ -76,33 +138,6 @@ export default function Navbar() {
               </a>
             </div>
           </div>
-          
-          {!user && (
-            <Link to="/login" className="btn-primary ml-2">
-              {t('navbar.loginSignup')}
-            </Link>
-          )}
-          
-          {user && (
-            <div className="flex items-center gap-4">
-              <div className="text-slate-700">
-                <span className="font-medium">{user.name}</span>
-                <span className="text-xs text-slate-500 ml-2 capitalize">({user.role})</span>
-              </div>
-              <Link 
-                to={`/${user.role}`} 
-                className="btn-primary"
-              >
-                {t('navbar.dashboard')}
-              </Link>
-              <button 
-                onClick={logout} 
-                className="btn-secondary"
-              >
-                {t('navbar.logout')}
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Mobile menu button */}
