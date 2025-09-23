@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 // Import assets
 import heroBanner from '../assets/images/hero-banner.png'
@@ -13,6 +14,7 @@ import medicineTrackerIcon from '../assets/images/medicine-tracker-icon.svg'
 import logo from '../assets/images/logo.svg'
 
 export default function LandingPage() {
+  const { t } = useTranslation()
   // Testimonial data
   const testimonials = [
     {
@@ -45,10 +47,10 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative z-10 flex flex-col justify-center items-center text-white px-6 py-20 min-h-[70vh]">
           <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-center max-w-4xl leading-tight">
-            Rural Telemedicine
+            {t('hero.title')}
           </h1>
           <p className="text-xl md:text-2xl max-w-3xl text-center font-light mb-10 text-blue-100">
-            Healthcare without boundaries - Connecting rural communities to quality medical care
+            {t('hero.subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             {!JSON.parse(localStorage.getItem('user') || 'null') ? (
@@ -61,7 +63,7 @@ export default function LandingPage() {
               </Link>
             )}
             <a href="#features" className="btn text-lg px-8 py-4 border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur font-semibold">
-              Learn More
+              {t('hero.cta')}
             </a>
           </div>
         </div>
@@ -76,16 +78,16 @@ export default function LandingPage() {
       {/* Mission Statement */}
       <section className="py-16 bg-gray-50">
         <div className="container-app text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-6">Connecting Rural Communities to Quality Healthcare</h2>
-          <p className="text-slate-600 max-w-4xl mx-auto text-xl leading-relaxed">Our platform provides low-bandwidth teleconsultations, digital health records, and real-time medicine availability tracking designed specifically for rural communities with limited connectivity.</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-6">{t('mission.title')}</h2>
+          <p className="text-slate-600 max-w-4xl mx-auto text-xl leading-relaxed">{t('mission.description')}</p>
         </div>
       </section>
 
       {/* Features Section */}
       <section id="features" className="py-20">
         <div className="container-app">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4 text-center">Our Services</h2>
-          <p className="text-slate-600 text-center mb-12 text-lg">Comprehensive healthcare solutions tailored for rural communities</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4 text-center">{t('services.title')}</h2>
+          <p className="text-slate-600 text-center mb-12 text-lg">{t('services.description')}</p>
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <div className="card transform transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white border-l-4 border-l-blue-500">
               <div className="card-body text-center p-8">
@@ -94,8 +96,8 @@ export default function LandingPage() {
                     <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold mb-4 text-slate-800">Teleconsultation</h3>
-                <p className="text-slate-600 leading-relaxed">Video calls optimized for low bandwidth with simple room joining. Connect with doctors from anywhere, even with limited internet.</p>
+                <h3 className="text-xl font-bold mb-4 text-slate-800">{t('features.teleconsultation.title')}</h3>
+                <p className="text-slate-600 leading-relaxed">{t('features.teleconsultation.description')}</p>
               </div>
             </div>
             <div className="card transform transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white border-l-4 border-l-green-500">
@@ -106,7 +108,7 @@ export default function LandingPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-slate-800">Health Records</h3>
-                <p className="text-slate-600 leading-relaxed">Store your medical history securely and access it anytime. Download PDF reports for offline access or to share with other healthcare providers.</p>
+                <p className="text-slate-600 leading-relaxed">{t('features.healthRecords.description')}</p>
               </div>
             </div>
             <div className="card transform transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white border-l-4 border-l-purple-500">
@@ -117,7 +119,7 @@ export default function LandingPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-slate-800">Medicine Tracker</h3>
-                <p className="text-slate-600 leading-relaxed">Check real-time availability of medicines at local pharmacies. Get notified when essential medications are back in stock.</p>
+                <p className="text-slate-600 leading-relaxed">{t('features.medicineTracker.description')}</p>
               </div>
             </div>
           </div>
@@ -128,24 +130,24 @@ export default function LandingPage() {
       <section className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 py-20 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="container-app relative z-10">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Our Impact</h2>
-          <p className="text-blue-100 text-center mb-12 text-lg">Making healthcare accessible across rural communities</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">{t('impact.title')}</h2>
+          <p className="text-blue-100 text-center mb-12 text-lg">{t('impact.description')}</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center max-w-5xl mx-auto">
             <div className="transform hover:scale-105 transition-transform">
               <div className="text-5xl md:text-6xl font-bold mb-3 text-yellow-300">500+</div>
-              <div className="text-blue-100 font-medium text-lg">Villages Covered</div>
+              <div className="text-blue-100 font-medium text-lg">{t('impact.villages')}</div>
             </div>
             <div className="transform hover:scale-105 transition-transform">
               <div className="text-5xl md:text-6xl font-bold mb-3 text-yellow-300">10,000+</div>
-              <div className="text-blue-100 font-medium text-lg">Consultations</div>
+              <div className="text-blue-100 font-medium text-lg">{t('impact.consultations')}</div>
             </div>
             <div className="transform hover:scale-105 transition-transform">
               <div className="text-5xl md:text-6xl font-bold mb-3 text-yellow-300">200+</div>
-              <div className="text-blue-100 font-medium text-lg">Doctors</div>
+              <div className="text-blue-100 font-medium text-lg">{t('impact.doctors')}</div>
             </div>
             <div className="transform hover:scale-105 transition-transform">
               <div className="text-5xl md:text-6xl font-bold mb-3 text-yellow-300">50+</div>
-              <div className="text-blue-100 font-medium text-lg">Pharmacies</div>
+              <div className="text-blue-100 font-medium text-lg">{t('impact.pharmacies')}</div>
             </div>
           </div>
         </div>
@@ -154,8 +156,8 @@ export default function LandingPage() {
       {/* Testimonials */}
       <section className="py-20 bg-gray-50">
         <div className="container-app">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4 text-center">What People Say</h2>
-          <p className="text-slate-600 text-center mb-12 text-lg">Real stories from our community</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4 text-center">{t('testimonials.title')}</h2>
+          <p className="text-slate-600 text-center mb-12 text-lg">{t('testimonials.subtitle')}</p>
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {testimonials.map((testimonial, index) => (
               <div key={index} className="bg-white rounded-xl shadow-lg p-8 transform hover:scale-105 transition-all duration-300 relative">
@@ -182,11 +184,11 @@ export default function LandingPage() {
       <section className="py-20">
         <div className="container-app text-center">
           <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl border border-blue-100 p-12 max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-6">Ready to Get Started?</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto mb-8 text-lg leading-relaxed">Join thousands of users who are already benefiting from our telemedicine platform. Start your healthcare journey today.</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-6">{t('cta.title')}</h2>
+            <p className="text-slate-600 max-w-2xl mx-auto mb-8 text-lg leading-relaxed">{t('cta.description')}</p>
             {!JSON.parse(localStorage.getItem('user') || 'null') && (
               <Link to="/login" className="inline-block bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-4 rounded-lg font-semibold transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                Sign Up Now - It's Free
+                {t('cta.button')}
               </Link>
             )}
           </div>
@@ -198,11 +200,11 @@ export default function LandingPage() {
         <div className="container-app">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
-              <h3 className="font-bold text-xl mb-4 text-blue-400">Rural Telemedicine</h3>
+              <h3 className="font-bold text-xl mb-4 text-blue-400">{t('hero.title')}</h3>
               <p className="text-slate-300 leading-relaxed">Bringing quality healthcare to every corner of rural communities through innovative technology.</p>
             </div>
             <div>
-              <h3 className="font-bold text-lg mb-4">Quick Links</h3>
+              <h3 className="font-bold text-lg mb-4">{t('footer.quickLinksTitle')}</h3>
               <ul className="space-y-3 text-slate-300">
                 <li><a href="#features" className="hover:text-blue-400 transition-colors">Features</a></li>
                 {!JSON.parse(localStorage.getItem('user') || 'null') ? (
@@ -214,7 +216,7 @@ export default function LandingPage() {
               </ul>
             </div>
             <div>
-              <h3 className="font-bold text-lg mb-4">Services</h3>
+              <h3 className="font-bold text-lg mb-4">{t('footer.featuresTitle')}</h3>
               <ul className="space-y-3 text-slate-300">
                 <li><a href="#" className="hover:text-blue-400 transition-colors">Teleconsultation</a></li>
                 <li><a href="#" className="hover:text-blue-400 transition-colors">Health Records</a></li>
@@ -222,14 +224,14 @@ export default function LandingPage() {
               </ul>
             </div>
             <div>
-              <h3 className="font-bold text-lg mb-4">Contact</h3>
+              <h3 className="font-bold text-lg mb-4">{t('footer.contactTitle')}</h3>
               <ul className="space-y-3 text-slate-300">
                 <li className="flex items-center">
                   <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                     <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                   </svg>
-                  info@ruralmed.org
+                  {t('footer.infoEmail')}
                 </li>
                 <li className="flex items-center">
                   <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -241,7 +243,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="border-t border-slate-800 pt-8 text-center">
-            <p className="text-slate-400">© {new Date().getFullYear()} Rural Telemedicine. All rights reserved. Built with ❤️ for rural communities.</p>
+            <p className="text-slate-400">{t('footer.copyright', { year: new Date().getFullYear() })}</p>
           </div>
         </div>
       </footer>
