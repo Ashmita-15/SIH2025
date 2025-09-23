@@ -8,6 +8,10 @@ import DoctorDashboard from './pages/DoctorDashboard.jsx'
 import PharmacyDashboard from './pages/PharmacyDashboard.jsx'
 import DoctorsPage from './pages/DoctorsPage.jsx'
 import DoctorDetails from './pages/DoctorDetails.jsx'
+import PharmacyPage from './pages/PharmacyPage.jsx'
+import PharmacyShop from './pages/PharmacyShop.jsx'
+import CheckoutPage from './pages/CheckoutPage.jsx'
+import OrderSuccess from './pages/OrderSuccess.jsx'
 
 function NotFound() {
   return (
@@ -41,6 +45,10 @@ export default function App() {
           <Route path="/pharmacy" element={<PrivateRoute roles={["pharmacy"]}><PharmacyDashboard /></PrivateRoute>} />
           <Route path="/doctors" element={<PrivateRoute roles={["patient"]}><DoctorsPage /></PrivateRoute>} />
           <Route path="/doctors/:doctorId" element={<PrivateRoute roles={["patient"]}><DoctorDetails /></PrivateRoute>} />
+          <Route path="/pharmacies" element={<PrivateRoute roles={["patient"]}><PharmacyPage /></PrivateRoute>} />
+          <Route path="/pharmacy-shop/:pharmacyId" element={<PrivateRoute roles={["patient"]}><PharmacyShop /></PrivateRoute>} />
+          <Route path="/checkout/:pharmacyId" element={<PrivateRoute roles={["patient"]}><CheckoutPage /></PrivateRoute>} />
+          <Route path="/order-success/:orderId" element={<PrivateRoute roles={["patient"]}><OrderSuccess /></PrivateRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
