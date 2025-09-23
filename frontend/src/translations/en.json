@@ -136,9 +136,38 @@
     "availability": "Availability"
   },
   "symptomChecker": {
-    "result": {
-      "condition": "Condition",
-      "advice": "Advice"
+    "title": "AI Symptom Checker",
+    "description": "Get AI-powered medical assistance by describing your symptoms, uploading images, or attaching relevant documents.",
+    "helpType": "Select Assistance Type",
+    "helpTypes": {
+      "medicalAssistance": "Medical Assistance",
+      "prescriptionReader": "Prescription Reader",
+      "medicineDescriber": "Medicine Describer",
+      "reportAnalyzer": "Report Analyzer"
+    },
+    "textInput": "Describe Your Symptoms / Question",
+    "textInputPlaceholder": "Be as detailed as possible...",
+    "imageInput": "Upload Image (Optional)",
+    "attachmentInput": "Upload Attachment (Optional - Image or PDF)",
+    "attachmentNote": "For PDF files, processing is limited. For better results, use images.",
+    "pdfWarning": "Note: PDF processing is limited. For better results, use images whenever possible.",
+    "emptyInput": "Please provide at least some text or upload an image/attachment.",
+    "apiKeyError": "API key is missing. Please configure it in the .env file.",
+    "apiUnauthorized": "Unauthorized: Please check your API key.",
+    "rateLimit": "Rate limit exceeded: Please try again later.",
+    "noResponse": "No valid response from AI service.",
+    "thinking": "Thinking...",
+    "analyzing": "Analyzing your input...",
+    "getAssistance": "Get Assistance",
+    "aiResponse": "AI Response",
+    "checkAnother": "Check Another",
+    "findDoctor": "Find a Doctor",
+    "prompts": {
+      "medicalAssistance": "You are a healthcare AI assistant. Analyze the user's symptoms and provide information about possible conditions. Always include a disclaimer that this is not a substitute for professional medical advice and recommend consulting a doctor for a proper diagnosis.",
+      "prescriptionReader": "You are a healthcare AI assistant. Read the prescription and provide information about the medication, dosage, and instructions. Always include a disclaimer that this is not a substitute for professional medical advice and recommend consulting a doctor or pharmacist for clarification.",
+      "medicineDescriber": "You are a healthcare AI assistant. Describe the medication, its uses, side effects, and precautions. Always include a disclaimer that this is not a substitute for professional medical advice and recommend consulting a doctor or pharmacist for personalized information.",
+      "reportAnalyzer": "You are a healthcare AI assistant. Analyze the medical report and explain the findings in simple terms. Always include a disclaimer that this is not a substitute for professional medical advice and recommend consulting a doctor for a full explanation.",
+      "default": "You are a healthcare AI assistant. Provide information based on the user's input. Always include a disclaimer that this is not a substitute for professional medical advice and recommend consulting a doctor for personalized guidance."
     }
   },
   "languages": {
