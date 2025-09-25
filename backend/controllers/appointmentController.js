@@ -135,4 +135,33 @@ export const rejectAppointment = async (req, res) => {
     }
 };
 
+// New function to mark appointment as completed
+export const completeAppointment = async (req, res) => {
+    try {
+        const { id } = req.params; // appointment ID
+        const { doctorNotes } = req.body;
+        
+        const appointment = await Appointment.findByIdAndUpdate(
+            id,
+            {
+                status: 'completed',
+                doctorNotes
+            },
+            { new: true }
+        ).populate('patientId', 'name age village email')
+         .populate('doctorId', 'name specialization qualification');
+        
+        if (!appointment) {
+            return res.status(404).json({ message: 'Appointment not found' });
+        }
+        
+        res.json({
+            message: 'Appointment marked as completed',
+            appointment
+        });
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+};
+
 
