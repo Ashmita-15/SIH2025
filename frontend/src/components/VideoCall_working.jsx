@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import io from 'socket.io-client'
 import api from '../services/api'
-import SimpleWebRTC from '../utils/SimpleWebRTC'
 
 const socket = io(import.meta.env.VITE_SIGNAL_URL || 'http://localhost:5000')
 
@@ -15,14 +14,28 @@ export default function VideoCall({ roomId }) {
   const [error, setError] = useState('')
   const [audioEnabled, setAudioEnabled] = useState(true)
   const [videoEnabled, setVideoEnabled] = useState(true)
+  const [SimplePeer, setSimplePeer] = useState(null)
   
-  // Check WebRTC support on component mount
+  // Load SimplePeer using require to avoid ES6 import issues
   useEffect(() => {
-    if (!SimpleWebRTC.WEBRTC_SUPPORT) {
-      setError('WebRTC not supported. Please use Chrome, Firefox, or Safari.')
+    const loadSimplePeer = async () => {
+      try {
+        // Use dynamic import but handle it properly
+        const module = await import('simple-peer')
+        // SimplePeer 9.11.1 exports as default in ES6 but as function in CommonJS
+        const PeerConstructor = module.default || module
+        console.log('SimplePeer loaded:', typeof PeerConstructor)
+        console.log('SimplePeer keys:', Object.keys(PeerConstructor))
+        console.log('SimplePeer WEBRTC_SUPPORT:', PeerConstructor.WEBRTC_SUPPORT)
+        setSimplePeer(() => PeerConstructor)
+      } catch (err) {
+        console.error('Failed to load SimplePeer:', err)
+        setError('Failed to load video call library')
+      }
     }
+    loadSimplePeer()
   }, [])
-
+  
   // Clean up function
   const cleanup = () => {
     console.log('Cleaning up video call...')
@@ -65,7 +78,6 @@ export default function VideoCall({ roomId }) {
   // End call function
   const handleEndCall = async () => {
     try {
-      // Only try to mark as completed if roomId is provided and call was actually connected
       if (roomId && isConnected) {
         console.log('Marking appointment as completed:', roomId)
         await api.put(`/appointments/${roomId}/complete`)
@@ -73,7 +85,6 @@ export default function VideoCall({ roomId }) {
       }
     } catch (error) {
       console.error('Failed to mark appointment as completed:', error)
-      // We don't show this error to the user as it's not critical for ending the call
     } finally {
       cleanup()
     }
@@ -103,29 +114,29 @@ export default function VideoCall({ roomId }) {
 
   // Create peer connection
   const createPeer = (initiator, userStream, signalData = null) => {
-    // Check WebRTC support
-    if (!SimpleWebRTC.WEBRTC_SUPPORT) {
-      console.error('❌ WebRTC not supported in this environment')
-      setError('WebRTC not supported. Please use Chrome, Firefox, or Safari.')
+    if (!SimplePeer) {
+      console.error('SimplePeer not loaded yet')
+      setError('Video call library not ready')
       return null
     }
 
     try {
-      console.log('🎯 Creating peer with initiator:', initiator)
-      console.log('🔧 WebRTC support:', SimpleWebRTC.WEBRTC_SUPPORT)
-      console.log('🔧 Stream tracks:', userStream ? userStream.getTracks().length : 'no stream')
+      console.log('Creating peer with initiator:', initiator)
+      console.log('SimplePeer type:', typeof SimplePeer)
       
-      // Create the peer instance using our SimpleWebRTC implementation
-      const p = new SimpleWebRTC({
+      const peerOptions = {
         initiator: initiator,
+        trickle: false,
         stream: userStream
-      })
+      }
       
-      console.log('✅ Peer created successfully!', typeof p)
+      console.log('Creating peer with options:', peerOptions)
+      const p = new SimplePeer(peerOptions)
+      console.log('Peer created successfully:', p)
 
       // Handle signaling
       p.on('signal', data => {
-        console.log('📡 Peer signaling:', data.type)
+        console.log('Peer signaling:', data.type || 'data')
         socket.emit('signal', { roomId, data })
       })
 
@@ -156,33 +167,34 @@ export default function VideoCall({ roomId }) {
       // Handle errors
       p.on('error', (err) => {
         console.error('Peer error:', err)
-        setError('Connection error occurred. Please try again.')
+        setError('Connection error: ' + err.message)
         setIsConnected(false)
         setIsWaiting(false)
       })
 
       // If we have signal data, send it immediately
       if (signalData) {
-        console.log('📤 Sending initial signal data:', signalData.type)
-        p.signal(signalData)
+        console.log('Sending initial signal data:', signalData.type || 'data')
+        try {
+          p.signal(signalData)
+        } catch (signalError) {
+          console.error('Error sending initial signal:', signalError)
+        }
       }
 
       return p
     } catch (error) {
-      console.error('❌ Error creating peer:', error)
-      console.error('❌ Error name:', error.name)
-      console.error('❌ Error message:', error.message)
-      console.error('❌ Error stack:', error.stack)
-      
-      setError(`Failed to create peer connection: ${error.message}`)
+      console.error('Error creating peer:', error)
+      console.error('SimplePeer constructor error:', error.stack)
+      setError('Failed to create peer connection: ' + error.message)
       return null
     }
   }
 
   useEffect(() => {
-    // Don't start if no roomId or WebRTC not supported
-    if (!roomId || !SimpleWebRTC.WEBRTC_SUPPORT) {
-      console.log('⏳ Waiting for roomId and WebRTC support...', { roomId: !!roomId, webrtcSupport: SimpleWebRTC.WEBRTC_SUPPORT })
+    // Don't start if no roomId or SimplePeer not loaded
+    if (!roomId || !SimplePeer) {
+      console.log('Waiting for roomId and SimplePeer:', { roomId: !!roomId, SimplePeer: !!SimplePeer })
       return
     }
 
@@ -201,6 +213,7 @@ export default function VideoCall({ roomId }) {
           audio: true
         })
         
+        console.log('Got user media stream')
         setStream(userStream)
         
         // Set local video stream
@@ -210,10 +223,11 @@ export default function VideoCall({ roomId }) {
         
         // Join the room
         socket.emit('join-room', roomId)
+        console.log('Joined room:', roomId)
         
         // Handle when another user joins (we become initiator)
         socket.on('user-joined', (id) => {
-          console.log('User joined, creating initiator peer')
+          console.log('User joined, creating initiator peer for user:', id)
           const newPeer = createPeer(true, userStream)
           if (newPeer) {
             setPeer(newPeer)
@@ -222,7 +236,7 @@ export default function VideoCall({ roomId }) {
         
         // Handle incoming signals
         socket.on('signal', ({ from, data }) => {
-          console.log('Received signal:', { from, hasData: !!data, type: data?.type })
+          console.log('Received signal from:', from, 'type:', data?.type)
           
           setPeer(currentPeer => {
             if (!currentPeer) {
@@ -234,6 +248,7 @@ export default function VideoCall({ roomId }) {
               // Signal existing peer
               try {
                 if (!currentPeer.destroyed) {
+                  console.log('Signaling existing peer with:', data?.type)
                   currentPeer.signal(data)
                 }
               } catch (signalError) {
@@ -246,6 +261,7 @@ export default function VideoCall({ roomId }) {
         
         // Handle socket disconnect
         socket.on('disconnect', () => {
+          console.log('Socket disconnected')
           setIsConnected(false)
           setError('Connection lost.')
         })
@@ -255,7 +271,7 @@ export default function VideoCall({ roomId }) {
         if (err.name === 'NotAllowedError') {
           setError('Camera and microphone access is required for video calls. Please allow access and try again.')
         } else {
-          setError('Failed to start video call. Please check your camera and microphone settings.')
+          setError('Failed to start video call: ' + err.message)
         }
         setIsWaiting(false)
       }
@@ -265,7 +281,7 @@ export default function VideoCall({ roomId }) {
     
     // Clean up on unmount or roomId change
     return cleanup
-  }, [roomId]) // Only depend on roomId
+  }, [roomId, SimplePeer])
 
   if (!roomId) {
     return (
@@ -279,19 +295,17 @@ export default function VideoCall({ roomId }) {
     )
   }
 
-  if (!SimpleWebRTC.WEBRTC_SUPPORT) {
+  if (!SimplePeer) {
     return (
       <div className="card">
         <div className="card-body">
           <div className="text-center py-8">
-            <div className="text-red-500">WebRTC not supported</div>
-            <div className="text-sm text-gray-500 mt-2">Please use Chrome, Firefox, or Safari for video calls</div>
+            <div className="animate-pulse text-gray-500">Loading video call library...</div>
           </div>
         </div>
       </div>
     )
   }
-
 
   return (
     <div className="card">
@@ -301,10 +315,13 @@ export default function VideoCall({ roomId }) {
             <div className="font-medium mb-1">Error</div>
             <div>{error}</div>
             <button 
-              onClick={cleanup}
+              onClick={() => {
+                setError('')
+                window.location.reload()
+              }}
               className="mt-2 bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm"
             >
-              Try Again
+              Reload Page
             </button>
           </div>
         ) : (
@@ -316,6 +333,9 @@ export default function VideoCall({ roomId }) {
                 </div>
                 <div className="text-sm text-gray-500 mb-4">
                   Room ID: {roomId}
+                </div>
+                <div className="text-xs text-gray-400 mb-4">
+                  Open another browser window/tab and join the same consultation to test
                 </div>
                 <button 
                   onClick={handleEndCall}
@@ -333,6 +353,7 @@ export default function VideoCall({ roomId }) {
                     ref={myVideo} 
                     autoPlay 
                     muted 
+                    playsInline
                     className="w-full bg-black rounded"
                     style={{ maxHeight: '300px' }}
                   />
@@ -344,6 +365,7 @@ export default function VideoCall({ roomId }) {
                   <video 
                     ref={userVideo} 
                     autoPlay 
+                    playsInline
                     className="w-full bg-black rounded"
                     style={{ maxHeight: '300px' }}
                   />

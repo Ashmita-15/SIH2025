@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import io from 'socket.io-client'
+import Peer from 'simple-peer'
 import api from '../services/api'
-import SimpleWebRTC from '../utils/SimpleWebRTC'
 
 const socket = io(import.meta.env.VITE_SIGNAL_URL || 'http://localhost:5000')
 
@@ -16,13 +16,6 @@ export default function VideoCall({ roomId }) {
   const [audioEnabled, setAudioEnabled] = useState(true)
   const [videoEnabled, setVideoEnabled] = useState(true)
   
-  // Check WebRTC support on component mount
-  useEffect(() => {
-    if (!SimpleWebRTC.WEBRTC_SUPPORT) {
-      setError('WebRTC not supported. Please use Chrome, Firefox, or Safari.')
-    }
-  }, [])
-
   // Clean up function
   const cleanup = () => {
     console.log('Cleaning up video call...')
@@ -102,36 +95,22 @@ export default function VideoCall({ roomId }) {
   }
 
   // Create peer connection
-  const createPeer = (initiator, userStream, signalData = null) => {
-    // Check WebRTC support
-    if (!SimpleWebRTC.WEBRTC_SUPPORT) {
-      console.error('❌ WebRTC not supported in this environment')
-      setError('WebRTC not supported. Please use Chrome, Firefox, or Safari.')
-      return null
-    }
-
+  const createPeer = (initiator, stream, signalData = null) => {
     try {
-      console.log('🎯 Creating peer with initiator:', initiator)
-      console.log('🔧 WebRTC support:', SimpleWebRTC.WEBRTC_SUPPORT)
-      console.log('🔧 Stream tracks:', userStream ? userStream.getTracks().length : 'no stream')
-      
-      // Create the peer instance using our SimpleWebRTC implementation
-      const p = new SimpleWebRTC({
+      console.log('Creating peer with initiator:', initiator, 'SimplePeer available:', typeof Peer)
+      const p = new Peer({
         initiator: initiator,
-        stream: userStream
+        trickle: false,
+        stream: stream
       })
-      
-      console.log('✅ Peer created successfully!', typeof p)
 
       // Handle signaling
       p.on('signal', data => {
-        console.log('📡 Peer signaling:', data.type)
         socket.emit('signal', { roomId, data })
       })
 
       // Handle remote stream
       p.on('stream', remoteStream => {
-        console.log('Received remote stream')
         if (userVideo.current) {
           userVideo.current.srcObject = remoteStream
         }
@@ -163,28 +142,19 @@ export default function VideoCall({ roomId }) {
 
       // If we have signal data, send it immediately
       if (signalData) {
-        console.log('📤 Sending initial signal data:', signalData.type)
         p.signal(signalData)
       }
 
       return p
     } catch (error) {
-      console.error('❌ Error creating peer:', error)
-      console.error('❌ Error name:', error.name)
-      console.error('❌ Error message:', error.message)
-      console.error('❌ Error stack:', error.stack)
-      
-      setError(`Failed to create peer connection: ${error.message}`)
+      console.error('Error creating peer:', error)
+      setError('Failed to create peer connection.')
       return null
     }
   }
 
   useEffect(() => {
-    // Don't start if no roomId or WebRTC not supported
-    if (!roomId || !SimpleWebRTC.WEBRTC_SUPPORT) {
-      console.log('⏳ Waiting for roomId and WebRTC support...', { roomId: !!roomId, webrtcSupport: SimpleWebRTC.WEBRTC_SUPPORT })
-      return
-    }
+    if (!roomId) return
 
     const start = async () => {
       try {
@@ -222,7 +192,7 @@ export default function VideoCall({ roomId }) {
         
         // Handle incoming signals
         socket.on('signal', ({ from, data }) => {
-          console.log('Received signal:', { from, hasData: !!data, type: data?.type })
+          console.log('Received signal:', { from, hasData: !!data })
           
           setPeer(currentPeer => {
             if (!currentPeer) {
@@ -265,7 +235,7 @@ export default function VideoCall({ roomId }) {
     
     // Clean up on unmount or roomId change
     return cleanup
-  }, [roomId]) // Only depend on roomId
+  }, [roomId])
 
   if (!roomId) {
     return (
@@ -278,20 +248,6 @@ export default function VideoCall({ roomId }) {
       </div>
     )
   }
-
-  if (!SimpleWebRTC.WEBRTC_SUPPORT) {
-    return (
-      <div className="card">
-        <div className="card-body">
-          <div className="text-center py-8">
-            <div className="text-red-500">WebRTC not supported</div>
-            <div className="text-sm text-gray-500 mt-2">Please use Chrome, Firefox, or Safari for video calls</div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
 
   return (
     <div className="card">
@@ -313,9 +269,6 @@ export default function VideoCall({ roomId }) {
               <div className="text-center py-8">
                 <div className="animate-pulse mb-2">
                   {stream ? 'Waiting for the other user to join...' : 'Setting up video call...'}
-                </div>
-                <div className="text-sm text-gray-500 mb-4">
-                  Room ID: {roomId}
                 </div>
                 <button 
                   onClick={handleEndCall}
